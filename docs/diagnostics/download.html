@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" href="data:,">
+  <title>下载通道诊断 | AIOS 非业务测试</title>
+  <style>
+    :root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#1f2937;background:#f5f7fb}*{box-sizing:border-box}body{margin:0}main{max-width:820px;margin:40px auto;padding:0 24px}h1{font-size:28px;margin:12px 0}p{line-height:1.65;color:#475569}.badge{display:inline-block;background:#fef3c7;color:#92400e;font-size:13px;padding:6px 10px;border-radius:8px}.card{padding:22px;background:white;border:1px solid #dbe3ef;border-radius:12px;margin:20px 0}.card h2{font-size:18px;margin:0 0 12px}.download{display:inline-block;background:#1d4ed8;color:white;padding:12px 16px;border-radius:8px;text-decoration:none;font-size:15px}.download[aria-disabled="true"]{background:#94a3b8;pointer-events:none}.note{font-size:13px}.notice{border-left:4px solid #f59e0b;background:#fffbeb;padding:12px 16px}pre{padding:16px;border:1px solid #e2e8f0;border-radius:8px;white-space:pre-wrap;font-size:13px;background:white}a:focus-visible{outline:3px solid #60a5fa;outline-offset:4px}
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">非业务诊断 · 无需登录</span>
+    <h1>下载通道对照</h1>
+    <p>两个链接提供完全相同的小文本，仅用于检查浏览器下载事件和文件交付。没有订单、账号或密钥，也不连接数据后链。</p>
+    <p class="notice">链接点击、页面提示和文件下载成功是不同状态。是否成功，请以浏览器提供的下载结果与实际文件为准。</p>
+    <section class="card" aria-label="常规 HTTP 下载">
+      <h2>1. 同源 HTTP 文件</h2>
+      <p class="note">直接下载本网站的静态文本文件。</p>
+      <a id="http-download" class="download" href="diagnostic.txt" download="aios-diagnostic-http.txt">下载 HTTP 诊断文本</a>
+    </section>
+    <section class="card" aria-label="Blob 下载">
+      <h2>2. 浏览器 Blob 文件</h2>
+      <p class="note">链接在本页打开后生成并保持可见。请直接点击，地址在离开此页时才释放。</p>
+      <a id="blob-download" class="download" aria-disabled="true" download="aios-diagnostic-blob.txt">下载 Blob 诊断文本</a>
+      <p id="blob-state" class="note" role="status" aria-live="polite">正在准备 Blob 链接…</p>
+    </section>
+    <h2>两个文件的内容</h2>
+    <pre id="payload">AIOS download diagnostic only.
+No business data, credentials, or orders.
+Version: 20261003-1
+</pre>
+    <p class="note">UTF-8 无 BOM，LF 换行，含结尾换行。版本：20261003-1。当前页面不报告“已下载成功”。</p>
+    <noscript><p class="notice">JavaScript 未启用：HTTP 链接仍可使用，Blob 链接尚未建立。</p></noscript>
+  </main>
+  <script>
+    "use strict";
+    (() => {
+      const payload = document.getElementById('payload').textContent;
+      const link = document.getElementById('blob-download');
+      const state = document.getElementById('blob-state');
+      let objectUrl = null;
+      function prepare() {
+        if (objectUrl !== null) return;
+        objectUrl = URL.createObjectURL(new Blob([payload], {type:'text/plain;charset=utf-8'}));
+        link.href = objectUrl;
+        link.removeAttribute('aria-disabled');
+        state.textContent = 'Blob 链接已准备好；尚未据此确认任何下载结果。';
+      }
+      window.addEventListener('pagehide', () => {
+        if (objectUrl !== null) URL.revokeObjectURL(objectUrl);
+        objectUrl = null;
+        link.removeAttribute('href');
+        link.setAttribute('aria-disabled', 'true');
+      });
+      window.addEventListener('pageshow', prepare);
+      prepare();
+    })();
+  </script>
+</body>
+</html>

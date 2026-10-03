@@ -1,0 +1,3 @@
+AIOS download diagnostic only.
+No business data, credentials, or orders.
+Version: 20261003-1
