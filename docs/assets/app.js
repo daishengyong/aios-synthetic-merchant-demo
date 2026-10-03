@@ -11,12 +11,24 @@
   let filtered = [];
   let loading = false;
   const money = cents => `${Math.trunc(cents / 100)}.${String(cents % 100).padStart(2, '0')}`;
-  const escapeCsv = value => /[",\r\n]/.test(String(value)) ? '"' + String(value).replaceAll('"', '""') + '"' : String(value);
-  const csv = rows => [columns, ...rows.map(row => [row.order_id, money(row.amount_cents), row.status, row.created_raw])].map(row => row.map(escapeCsv).join(',')).join('\r\n') + '\r\n';
   function setLoading(active) {
     loading = active;
     panel.setAttribute('aria-busy', String(active));
-    for (const id of ['status-filter', 'date-filter', 'reset', 'download', 'previous', 'next']) $(id).disabled = active;
+    for (const id of ['status-filter', 'date-filter', 'reset', 'previous', 'next']) $(id).disabled = active;
+    const downloadLink = $('download');
+    if (active) {
+      downloadLink.removeAttribute('href');
+      downloadLink.removeAttribute('download');
+      downloadLink.setAttribute('aria-disabled', 'true');
+      downloadLink.setAttribute('tabindex', '-1');
+    } else {
+      const status = $('status-filter').value;
+      const date = $('date-filter').value;
+      downloadLink.href = `exports/${data.snapshot}/${status}-${date}.csv`;
+      downloadLink.download = `${data.snapshot}-${status}-${date}.csv`;
+      downloadLink.removeAttribute('aria-disabled');
+      downloadLink.removeAttribute('tabindex');
+    }
     if (active) {
       $('load-state').textContent = '正在加载演示订单，请稍候…';
       $('order-rows').replaceChildren();
@@ -75,18 +87,6 @@
   });
   $('previous').addEventListener('click', () => { if (!loading && page > 1) { page -= 1; refresh(false); } });
   $('next').addEventListener('click', () => { if (!loading && page < Math.ceil(filtered.length / pageSize)) { page += 1; refresh(false); } });
-  $('download').addEventListener('click', () => {
-    if (loading) return;
-    const status = $('status-filter').value;
-    const date = $('date-filter').value;
-    const filename = `AIOS-DEMO-20261003-E-${status}-${date}.csv`;
-    const blob = new Blob([csv(filtered)], {type: 'text/csv;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = filename;
-    document.body.append(a); a.click(); a.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    $('download-state').textContent = `已生成下载：${filename}，共 ${filtered.length} 笔，筛选金额 USD ${money(filtered.reduce((sum, row) => sum + row.amount_cents, 0))}。请在浏览器下载列表确认文件已保存。`;
-  });
   if (!data || data.snapshot !== main.dataset.snapshotId || data.rows.length !== 10) throw new Error('Fixture metadata mismatch');
   refresh(false, 750);
 })();

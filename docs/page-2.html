@@ -8,13 +8,13 @@
   <title>订单列表 · 动态取数演练 | AIOS 虚构商家演示</title>
   <link rel="stylesheet" href="assets/style.css">
   <style>
-    button,select{font:inherit;border:1px solid #cbd5e1;border-radius:7px;background:white;padding:9px 12px;color:#1f2937}button{cursor:pointer}button:disabled{opacity:.45;cursor:default}button.primary{background:#1d4ed8;border-color:#1d4ed8;color:white}.filters{display:flex;flex-wrap:wrap;gap:14px;align-items:end;padding:20px 24px;background:#fbfcfe;border-bottom:1px solid #e2e8f0}.filters label{display:grid;gap:6px;font-size:12px;color:#475569}.summary{display:flex;gap:22px;flex-wrap:wrap;padding:17px 24px;border-bottom:1px solid #e2e8f0;font-size:14px}.summary strong{font-size:20px;color:#0f172a}.loading{padding:12px 24px;color:#1e40af;background:#eff6ff;font-size:13px;min-height:40px}.download-note{padding:0 24px 16px;margin:0;font-size:12px;color:#64748b}.empty{text-align:center;color:#64748b}.snapshot{line-height:1.7}.pager-links button{font-size:13px}.banner{font-size:12px;background:#fff7ed;color:#9a3412;padding:10px 14px;border:1px solid #fed7aa;border-radius:8px;margin-top:14px}a{color:#1d4ed8}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #60a5fa;outline-offset:3px}
+    button,select,a.download{font:inherit;border:1px solid #cbd5e1;border-radius:7px;background:white;padding:9px 12px;color:#1f2937}button{cursor:pointer}button:disabled,a.download[aria-disabled="true"]{opacity:.45;cursor:default}a.download{text-decoration:none}a.download[aria-disabled="true"]{pointer-events:none}button.primary,a.download.primary{background:#1d4ed8;border-color:#1d4ed8;color:white}.filters{display:flex;flex-wrap:wrap;gap:14px;align-items:end;padding:20px 24px;background:#fbfcfe;border-bottom:1px solid #e2e8f0}.filters label{display:grid;gap:6px;font-size:12px;color:#475569}.summary{display:flex;gap:22px;flex-wrap:wrap;padding:17px 24px;border-bottom:1px solid #e2e8f0;font-size:14px}.summary strong{font-size:20px;color:#0f172a}.loading{padding:12px 24px;color:#1e40af;background:#eff6ff;font-size:13px;min-height:40px}.download-note{padding:0 24px 16px;margin:0;font-size:12px;color:#64748b}.empty{text-align:center;color:#64748b}.snapshot{line-height:1.7}.pager-links button{font-size:13px}.banner{font-size:12px;background:#fff7ed;color:#9a3412;padding:10px 14px;border:1px solid #fed7aa;border-radius:8px;margin-top:14px}a{color:#1d4ed8}button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #60a5fa;outline-offset:3px}
   </style>
   <script defer src="assets/fixture-data.js"></script>
   <script defer src="assets/app.js"></script>
 </head>
 <body>
-  <main class="shell" data-snapshot-id="AIOS-DEMO-20261003-E" data-source-updated-at="2026-10-03 11:07:33 UTC" data-total-rows="10" data-page-number="2" data-initial-page="2">
+  <main class="shell" data-ui-revision="E-http-export-v1" data-snapshot-id="AIOS-DEMO-20261003-E" data-source-updated-at="2026-10-03 11:07:33 UTC" data-total-rows="10" data-page-number="2" data-initial-page="2">
     <header class="top"><span class="brand">AIOS 商家演示后台</span><span class="badge">虚构测试数据 · 无需登录</span></header>
     <h1 class="title">订单列表</h1>
     <p class="sub">筛选订单、逐页查看、下载报表。编号、金额、状态和时间均为虚构测试值，不代表京东、Webkio 或任何真实店铺业绩。</p>
@@ -28,7 +28,7 @@
         </select></label>
         <label for="date-filter">创建日期<select id="date-filter" disabled><option value="all">全部日期</option><option value="2026-10-01">2026-10-01</option><option value="2026-10-02">2026-10-02</option></select></label>
         <button type="button" id="reset" disabled>重置筛选</button>
-        <button type="button" id="download" class="primary" disabled>下载当前筛选结果 CSV</button>
+        <a id="download" class="primary download" aria-disabled="true" tabindex="-1">下载当前筛选结果 CSV</a>
       </form>
       <div class="summary"><span>筛选结果 <strong id="filtered-count">—</strong> 笔</span><span>筛选金额 USD <strong id="filtered-total">—</strong></span><span>每页 5 笔</span></div>
       <div id="load-state" class="loading" role="status" aria-live="polite">正在加载演示订单，请稍候…</div>
@@ -36,8 +36,8 @@
       <nav class="pager" aria-label="订单分页"><span id="page-summary">正在加载…</span><div class="pager-links"><button type="button" id="previous" disabled>← 上一页</button><strong id="page-number" aria-current="page">—</strong><button type="button" id="next" disabled>下一页 →</button></div></nav>
       <p class="download-note">下载包含当前筛选范围内的全部页，不仅是当前页。导出四列：order_id、total_usd、status、created_raw。</p>
     </section>
-    <p class="note" id="download-state" role="status" aria-live="polite">尚未下载。页面上的筛选、分页和下载均在本浏览器完成，不会向任何业务系统上传数据。</p>
-    <p class="note"><a href="snapshots/AIOS-DEMO-20261003-D/">查看上一版静态演示快照 D</a> · 本页用于验证动态网页操作，不能据此认定真实平台登录或取数已经通过。</p>
+    <p class="note" id="download-state" role="status" aria-live="polite">下载当前筛选对应的同源 CSV 文件。实际下载结果请以浏览器确认为准；本页不会向任何业务系统上传数据。</p>
+    <p class="note"><a href="snapshots/AIOS-DEMO-20261003-D/">查看上一版静态演示快照 D</a> · 界面修订 E-http-export-v1，订单仍为同一 E 快照。本页用于验证动态网页操作，不能据此认定真实平台登录或取数已经通过。</p>
     <noscript><p class="banner">此演示需要启用 JavaScript 才能筛选、翻页和下载。数据加载尚未完成。</p></noscript>
   </main>
 </body>
