@@ -1,13 +1,13 @@
 "use strict";
 window.AIOS_DEMO_DATA = {
-  "snapshot": "AIOS-DEMO-20261005-F",
-  "source_updated_at": "2026-10-05 08:44:21 UTC",
+  "snapshot": "AIOS-DEMO-20261003-E",
+  "source_updated_at": "2026-10-03 11:07:33 UTC",
   "rows": [
     {
       "order_id": "AIOS-DEMO-1001",
       "status": "paid",
       "created_raw": "2026-10-01 09:12:00",
-      "amount_cents": 13340
+      "amount_cents": 13240
     },
     {
       "order_id": "AIOS-DEMO-1002",
